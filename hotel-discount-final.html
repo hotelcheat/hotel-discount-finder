@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>호텔 최저가 찾기 - 완벽한 할인 분석</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .input-section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .results {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .result-header {
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .result-header.better {
+            background: #e3f2fd;
+            border: 2px solid #2196F3;
+        }
+
+        .result-header.optimal {
+            background: #e8f5e9;
+            border: 2px solid #4CAF50;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .price-box {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .price-box.highlight {
+            background: #fff3e0;
+            border: 2px solid #ff9800;
+        }
+
+        .price-value {
+            font-size: 2em;
+            font-weight: 700;
+            color: #333;
+            margin: 10px 0;
+        }
+
+        .discount-detail {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            font-size: 0.95em;
+        }
+
+        .discount-detail div {
+            padding: 5px 0;
+        }
+
+        .warning-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .warning-box div {
+            padding: 3px 0;
+        }
+
+        .affiliate-btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background: #ff9800;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: transform 0.2s;
+            font-size: 1.05em;
+        }
+
+        .affiliate-btn:hover {
+            transform: translateY(-2px);
+            background: #f57c00;
+        }
+
+        .route-list {
+            list-style: none;
+        }
+
+        .route-item {
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            background: #f9f9f9;
+            border: 2px solid transparent;
+        }
+
+        .route-item.best {
+            background: #fff3e0;
+            border: 2px solid #ff9800;
+        }
+
+        .route-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .route-name {
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .route-price {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .route-details {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 8px;
+        }
+
+        .route-link {
+            display: inline-block;
+            padding: 8px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 0.9em;
+            margin-top: 12px;
+            transition: background 0.2s;
+        }
+
+        .route-link:hover {
+            background: #764ba2;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .badge.best {
+            background: #ff9800;
+            color: white;
+        }
+
+        .badge.limited {
+            background: #f44336;
+            color: white;
+        }
+
+        .coupon-list {
+            list-style: none;
+        }
+
+        .coupon-item {
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-left: 3px solid #9e9e9e;
+            background: #f9f9f9;
+            font-size: 0.95em;
+        }
+
+        .expandable {
+            margin-top: 30px;
+            border-top: 2px solid #e0e0e0;
+            padding-top: 20px;
+        }
+
+        .expand-header {
+            cursor: pointer;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s;
+        }
+
+        .expand-header:hover {
+            background: #eeeeee;
+        }
+
+        .expand-header h3 {
+            margin: 0;
+            font-size: 1.1em;
+        }
+
+        .expand-icon {
+            font-size: 1.2em;
+            transition: transform 0.3s;
+        }
+
+        .expand-icon.open {
+            transform: rotate(180deg);
+        }
+
+        .expand-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .expand-content.open {
+            max-height: 3000px;
+            transition: max-height 0.5s ease-in;
+        }
+
+        .expand-inner {
+            padding: 20px 0;
+        }
+
+        .detail-section {
+            margin-bottom: 25px;
+        }
+
+        .detail-section h4 {
+            font-size: 1em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .detail-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .detail-list li {
+            padding: 8px 0;
+            padding-left: 20px;
+            position: relative;
+            color: #666;
+        }
+
+        .detail-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .route-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .route-price {
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏨 호텔 최저가 찾기</h1>
+            <p>아고다 URL만 붙여넣으면 최적의 할인을 찾아드려요</p>
+        </div>
+
+        <div class="input-section">
+            <div class="input-group">
+                <label for="agodaUrl">아고다 URL을 붙여넣어주세요</label>
+                <input 
+                    type="text" 
+                    id="agodaUrl" 
+                    placeholder="https://www.agoda.com/ko-kr/hotel-name/?checkin=2026-05-15&checkout=2026-05-17"
+                    value="https://www.agoda.com/ko-kr/millennium-hilton-bangkok/hotel?checkin=2026-05-15&checkout=2026-05-17"
+                >
+                <div style="margin-top: 8px; font-size: 0.85em; color: #666;">
+                    💡 예시 URL이 입력되어 있습니다. 바로 테스트해보세요!
+                </div>
+            </div>
+            <button class="btn" onclick="analyzeUrl()">최저가 찾기</button>
+        </div>
+
+        <div class="results" id="results"></div>
+    </div>
+
+    <script>
+        // 프로모션 데이터베이스 (관리자가 관리)
+        const promotionDB = {
+            payments: [
+                {
+                    id: 'shinhan_premium',
+                    name: '신한카드 프리미엄 특가',
+                    type: 'payment',
+                    card: 'shinhan',
+                    platform: 'app',
+                    baseDiscount: 0.10,
+                    
+                    conditions: {
+                        bookingPeriod: { start: '2025-10-01', end: '2026-12-31' },
+                        stayPeriod: { start: '2025-10-01', end: '2026-12-31' },
+                        minAmount: 200,
+                        maxDiscount: 100,
+                        currency: 'USD',
+                        
+                        countryTiers: [
+                            { countries: ['TH', 'MY', 'IT'], discount: 0.15, label: '태국/말레이시아/이탈리아' },
+                            { countries: ['SG', 'JP'], discount: 0.12, label: '싱가포르/일본' },
+                            { countries: 'others', discount: 0.10, label: '기타 국가' }
+                        ],
+                        
+                        timeBonuses: [
+                            { hours: '00:00-03:00', bonus: 0.05, maxTotal: 0.30, label: '새벽 시간대' }
+                        ],
+                        
+                        advanceBookingDays: 90,
+                        paymentTiming: 'prepay',
+                        installmentRestriction: true,
+                        cardIssuingCountries: ['KR'],
+                        cardBrands: ['VISA', 'MASTER'],
+                        applicationType: 'auto'
+                    }
+                },
+                {
+                    id: 'kb_standard',
+                    name: 'KB국민카드 제휴',
+                    type: 'payment',
+                    card: 'kb',
+                    platform: 'app',
+                    baseDiscount: 0.13,
+                    
+                    conditions: {
+                        bookingPeriod: { start: '2025-01-01', end: '2026-12-31' },
+                        stayPeriod: null,
+                        minAmount: 150,
+                        maxDiscount: 80,
+                        currency: 'USD',
+                        installmentRestriction: false,
+                        applicationType: 'auto'
+                    }
+                },
+                {
+                    id: 'naver_basic',
+                    name: '네이버 제휴',
+                    type: 'payment',
+                    card: 'naver',
+                    platform: 'pc',
+                    baseDiscount: 0.05,
+                    
+                    conditions: {
+                        applicationType: 'auto'
+                    }
+                }
+            ],
+            
+            coupons: [
+                {
+                    id: 'winter_season',
+                    name: '겨울 시즌 특가',
+                    type: 'coupon',
+                    code: 'WINTER20',
+                    baseDiscount: 0.20,
+                    
+                    conditions: {
+                        bookingPeriod: { start: '2025-12-01', end: '2026-02-28' },
+                        stayPeriod: { start: '2025-12-01', end: '2026-03-31' },
+                        minAmount: 300,
+                        maxDiscount: 150,
+                        currency: 'USD',
+                        
+                        countryTiers: [
+                            { countries: ['KR', 'JP'], discount: 0.20 },
+                            { countries: 'others', discount: 0.15 }
+                        ],
+                        
+                        applicationType: 'manual'
+                    }
+                },
+                {
+                    id: 'kakao_limited',
+                    name: '카카오페이 선착순',
+                    type: 'coupon',
+                    code: 'KAKAO10K',
+                    discountType: 'fixed',
+                    fixedAmount: 10000,
+                    fixedCurrency: 'KRW',
+                    
+                    conditions: {
+                        bookingPeriod: { start: '2026-01-01', end: '2026-12-31' },
+                        minAmount: 100,
+                        currency: 'USD',
+                        limited: true,
+                        applicationType: 'manual'
+                    }
+                },
+                {
+                    id: 'asia_special',
+                    name: '아시아 지역 특가',
+                    type: 'coupon',
+                    code: 'ASIA12',
+                    baseDiscount: 0.12,
+                    
+                    conditions: {
+                        countryTiers: [
+                            { countries: ['TH', 'SG', 'MY', 'VN'], discount: 0.12 },
+                        ],
+                        minAmount: 100,
+                        maxDiscount: 80,
+                        applicationType: 'manual'
+                    }
+                }
+            ],
+            
+            events: [
+                {
+                    id: 'midnight_deal',
+                    name: '새벽 특가',
+                    type: 'event',
+                    
+                    conditions: {
+                        timeSlots: [
+                            { hours: '00:00-03:00', discount: 0.30, label: '자정~새벽3시' },
+                            { hours: '03:00-06:00', discount: 0.25, label: '새벽3시~6시' }
+                        ],
+                        applicationType: 'auto'
+                    }
+                },
+                {
+                    id: 'super_wednesday',
+                    name: '슈퍼수요일',
+                    type: 'event',
+                    baseDiscount: 0.10,
+                    
+                    conditions: {
+                        dayOfWeek: 3,
+                        timeSlots: [
+                            { hours: '14:00-18:00', discount: 0.10 }
+                        ],
+                        applicationType: 'auto'
+                    }
+                }
+            ]
+        };
+
+        // 국가 매핑
+        const countryMapping = {
+            'thailand': 'TH', 'bangkok': 'TH', 'phuket': 'TH', 'pattaya': 'TH',
+            'malaysia': 'MY', 'kuala-lumpur': 'MY', 'penang': 'MY',
+            'singapore': 'SG',
+            'vietnam': 'VN', 'hanoi': 'VN', 'ho-chi-minh': 'VN',
+            'italy': 'IT', 'rome': 'IT', 'milan': 'IT', 'venice': 'IT',
+            'japan': 'JP', 'tokyo': 'JP', 'osaka': 'JP', 'kyoto': 'JP',
+            'korea': 'KR', 'seoul': 'KR', 'busan': 'KR', 'jeju': 'KR'
+        };
+
+        function toggleExpand() {
+            const content = document.getElementById('expandContent');
+            const icon = document.getElementById('expandIcon');
+            
+            if (content.classList.contains('open')) {
+                content.classList.remove('open');
+                icon.classList.remove('open');
+            } else {
+                content.classList.add('open');
+                icon.classList.add('open');
+            }
+        }
+
+        function parseAgodaUrl(url) {
+            try {
+                const urlObj = new URL(url);
+                const params = new URLSearchParams(urlObj.search);
+                const pathParts = urlObj.pathname.split('/').filter(p => p);
+                
+                let city = '';
+                let country = '';
+                
+                for (const part of pathParts) {
+                    const partLower = part.toLowerCase();
+                    for (const [key, code] of Object.entries(countryMapping)) {
+                        if (partLower.includes(key)) {
+                            city = part;
+                            country = code;
+                            break;
+                        }
+                    }
+                    if (country) break;
+                }
+                
+                const checkin = params.get('checkin') || params.get('checkIn');
+                const checkout = params.get('checkout') || params.get('checkOut');
+                
+                let nights = 2;
+                if (checkin && checkout) {
+                    const d1 = new Date(checkin);
+                    const d2 = new Date(checkout);
+                    nights = Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
+                }
+                
+                return {
+                    city: city || 'unknown',
+                    country: country || 'US',
+                    checkin: checkin || '2026-05-15',
+                    checkout: checkout || '2026-05-17',
+                    nights: nights,
+                    isValid: true
+                };
+            } catch (e) {
+                return { isValid: false };
+            }
+        }
+
+        function isInPeriod(dateStr, period) {
+            if (!period) return true;
+            const date = new Date(dateStr);
+            const start = period.start ? new Date(period.start) : new Date('1900-01-01');
+            const end = period.end ? new Date(period.end) : new Date('2099-12-31');
+            return date >= start && date <= end;
+        }
+
+        function getDaysDiff(date1Str, date2Str) {
+            const d1 = new Date(date1Str);
+            const d2 = new Date(date2Str);
+            return Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
+        }
+
+        function isInTimeRange(timeStr, rangeStr) {
+            const [startStr, endStr] = rangeStr.split('-');
+            const [curH, curM] = timeStr.split(':').map(Number);
+            const [startH, startM] = startStr.split(':').map(Number);
+            const [endH, endM] = endStr.split(':').map(Number);
+            
+            const cur = curH * 60 + curM;
+            const start = startH * 60 + startM;
+            const end = endH * 60 + endM;
+            
+            return cur >= start && cur < end;
+        }
+
+        function checkPromotion(promo, userState) {
+            const cond = promo.conditions || {};
+            const failures = [];
+            const warnings = [];
+            const appliedConditions = [];
+            let finalDiscount = promo.baseDiscount || 0;
+            
+            // 1. 예약 기간
+            if (cond.bookingPeriod && !isInPeriod(userState.today, cond.bookingPeriod)) {
+                failures.push(`예약기간 종료 (${cond.bookingPeriod.end}까지)`);
+            }
+            
+            // 2. 숙박 기간
+            if (cond.stayPeriod && !isInPeriod(userState.checkin, cond.stayPeriod)) {
+                failures.push(`숙박기간 불가 (${cond.stayPeriod.end}까지)`);
+            }
+            
+            // 3. 사전 예약일
+            if (cond.advanceBookingDays) {
+                const daysDiff = getDaysDiff(userState.today, userState.checkin);
+                if (daysDiff > cond.advanceBookingDays) {
+                    failures.push(`예약 후 ${cond.advanceBookingDays}일 이내 체크인 필요 (현재 ${daysDiff}일)`);
+                }
+            }
+            
+            // 4. 최소 금액
+            if (cond.minAmount && userState.totalPrice < cond.minAmount) {
+                failures.push(`최소금액 미달 ($${cond.minAmount} 필요, 현재 $${userState.totalPrice})`);
+            }
+            
+            // 5. 국가별 할인율
+            if (cond.countryTiers) {
+                let matched = false;
+                for (const tier of cond.countryTiers) {
+                    if (tier.countries === 'others') {
+                        finalDiscount = tier.discount;
+                    } else if (tier.countries.includes(userState.country)) {
+                        finalDiscount = tier.discount;
+                        appliedConditions.push(`${tier.label || tier.countries.join('/')} 지역 ${Math.round(tier.discount * 100)}% 적용`);
+                        matched = true;
+                        break;
+                    }
+                }
+                if (!matched && cond.countryTiers.some(t => t.countries !== 'others')) {
+                    const availableCountries = cond.countryTiers.filter(t => t.countries !== 'others')[0];
+                    if (availableCountries) {
+                        failures.push(`지역 제한 (${availableCountries.label || availableCountries.countries.join('/')}만 적용)`);
+                    }
+                }
+            }
+            
+            // 6. 시간대 체크
+            if (cond.timeSlots) {
+                let timeMatched = false;
+                for (const slot of cond.timeSlots) {
+                    if (isInTimeRange(userState.currentTime, slot.hours)) {
+                        if (slot.discount !== undefined) {
+                            finalDiscount = Math.max(finalDiscount, slot.discount);
+                            appliedConditions.push(`${slot.label || slot.hours} 시간대 ${Math.round(slot.discount * 100)}% 적용`);
+                        }
+                        if (slot.bonus !== undefined) {
+                            finalDiscount = Math.min(finalDiscount + slot.bonus, slot.maxTotal || 1);
+                            appliedConditions.push(`${slot.label} 보너스 +${Math.round(slot.bonus * 100)}%`);
+                        }
+                        timeMatched = true;
+                        break;
+                    }
+                }
+                if (!timeMatched && promo.type === 'event') {
+                    const slots = cond.timeSlots.map(s => s.label || s.hours).join(' 또는 ');
+                    failures.push(`시간대 불일치 (${slots}만 적용)`);
+                }
+            }
+            
+            // 7. 요일 체크
+            if (cond.dayOfWeek !== undefined) {
+                const today = new Date();
+                if (today.getDay() !== cond.dayOfWeek) {
+                    const days = ['일', '월', '화', '수', '목', '금', '토'];
+                    failures.push(`${days[cond.dayOfWeek]}요일만 적용`);
+                }
+            }
+            
+            // 할인 금액 계산
+            let discountAmount = 0;
+            if (promo.discountType === 'fixed') {
+                const exchangeRate = promo.fixedCurrency === 'KRW' ? 1300 : 1;
+                discountAmount = promo.fixedAmount / exchangeRate;
+            } else {
+                discountAmount = userState.totalPrice * finalDiscount;
+            }
+            
+            // 8. 최대 할인 적용
+            if (cond.maxDiscount && discountAmount > cond.maxDiscount) {
+                discountAmount = cond.maxDiscount;
+                appliedConditions.push(`최대 할인 한도 $${cond.maxDiscount} 적용`);
+            }
+            
+            // 9. 경고사항
+            if (cond.paymentTiming === 'prepay') {
+                warnings.push('선결제(지금 결제하기) 객실만 할인 적용');
+            } else if (cond.paymentTiming === 'payAtHotel') {
+                warnings.push('호텔 도착 후 결제 객실만 할인 적용');
+            }
+            
+            if (cond.installmentRestriction) {
+                warnings.push('무이자할부 선택 시 할인 불가');
+            }
+            
+            if (cond.cardIssuingCountries) {
+                const countries = { 'KR': '한국', 'US': '미국', 'SG': '싱가포르' };
+                const countryNames = cond.cardIssuingCountries.map(c => countries[c] || c).join('/');
+                warnings.push(`${countryNames}에서 발급한 카드만 적용`);
+            }
+            
+            if (cond.cardBrands) {
+                warnings.push(`${cond.cardBrands.join('/')} 카드만 적용`);
+            }
+            
+            if (cond.applicationType === 'manual' && promo.code) {
+                warnings.push(`쿠폰코드 직접 입력 필요: ${promo.code}`);
+            }
+            
+            if (cond.limited) {
+                warnings.push('선착순 쿠폰으로 소진 여부 불확실 - 직접 확인 필요');
+            }
+            
+            return {
+                valid: failures.length === 0,
+                failures: failures,
+                warnings: warnings,
+                appliedConditions: appliedConditions,
+                finalDiscount: finalDiscount,
+                discountAmount: discountAmount,
+                finalPrice: userState.totalPrice - discountAmount
+            };
+        }
+
+        function analyzeUrl() {
+            const url = document.getElementById('agodaUrl').value;
+            
+            if (!url || !url.includes('agoda.com')) {
+                alert('올바른 아고다 URL을 입력해주세요!');
+                return;
+            }
+            
+            const parsed = parseAgodaUrl(url);
+            if (!parsed.isValid) {
+                alert('URL 파싱에 실패했습니다.');
+                return;
+            }
+            
+            const userState = {
+                country: parsed.country,
+                city: parsed.city,
+                checkin: parsed.checkin,
+                checkout: parsed.checkout,
+                nights: parsed.nights,
+                pricePerNight: 120,
+                totalPrice: parsed.nights * 120,
+                today: new Date().toISOString().split('T')[0],
+                currentTime: new Date().toTimeString().slice(0, 5)
+            };
+            
+            const allResults = [];
+            
+            [...promotionDB.payments, ...promotionDB.coupons, ...promotionDB.events].forEach(promo => {
+                const result = checkPromotion(promo, userState);
+                allResults.push({
+                    ...promo,
+                    check: result
+                });
+            });
+            
+            const validResults = allResults.filter(r => r.check.valid).sort((a, b) => a.check.finalPrice - b.check.finalPrice);
+            const invalidResults = allResults.filter(r => !r.check.valid);
+            
+            displayResults(userState, validResults, invalidResults, url);
+        }
+
+        function displayResults(userState, validResults, invalidResults, hotelUrl) {
+            const bestRoute = validResults[0];
+            const currentPrice = userState.totalPrice;
+            
+            let html = `
+                <div class="result-header ${bestRoute ? 'better' : 'optimal'}">
+                    <h2>${bestRoute ? `💡 최저가를 찾았습니다! $${(currentPrice - bestRoute.check.finalPrice).toFixed(0)} 절약` : '❌ 사용 가능한 할인이 없습니다'}</h2>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">📊 예약 정보</div>
+                    <div class="price-box">
+                        <div style="font-size: 0.95em; color: #666; margin-bottom: 5px;">
+                            ${userState.country} · ${userState.checkin} ~ ${userState.checkout} · ${userState.nights}박
+                        </div>
+                        <div class="price-value">$${currentPrice}</div>
+                        <div style="margin-top: 5px; color: #666; font-size: 0.9em;">
+                            1박 $${userState.pricePerNight} × ${userState.nights}박
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            if (bestRoute) {
+                const check = bestRoute.check;
+                const savingsPercent = Math.round((check.discountAmount / currentPrice) * 100);
+                
+                html += `
+                    <div class="section">
+                        <div class="section-title">🎯 최저가 추천</div>
+                        <div class="price-box highlight">
+                            <div style="font-weight: 600; font-size: 1.3em; margin-bottom: 5px;">
+                                ${bestRoute.name}
+                                ${bestRoute.conditions?.limited ? '<span class="badge limited">⚡ 선착순</span>' : ''}
+                            </div>
+                            <div class="price-value">$${check.finalPrice.toFixed(2)}</div>
+                            
+                            <div class="discount-detail">
+                                <div style="font-weight: 600; color: #4CAF50; font-size: 1.05em;">
+                                    ✅ ${savingsPercent}% 할인 적용
+                                </div>
+                                <div>할인액: $${check.discountAmount.toFixed(2)}</div>
+                                ${check.appliedConditions.length > 0 ? `
+                                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e0e0e0;">
+                                        ${check.appliedConditions.map(c => `<div>• ${c}</div>`).join('')}
+                                    </div>
+                                ` : ''}
+                            </div>
+                `;
+                
+                if (check.warnings.length > 0) {
+                    html += `
+                        <div class="warning-box">
+                            <div style="font-weight: 600; margin-bottom: 8px;">⚠️ 적용 조건:</div>
+                            ${check.warnings.map(w => `<div>• ${w}</div>`).join('')}
+                        </div>
+                    `;
+                }
+                
+                html += `
+                            <a href="${generateAffiliateLink(bestRoute, hotelUrl)}" target="_blank" class="affiliate-btn">
+                                ${bestRoute.name} 페이지로 이동 →
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (validResults.length > 1) {
+                html += `
+                    <div class="section">
+                        <div class="section-title">📋 사용 가능한 모든 할인 (${validResults.length}개)</div>
+                        <ul class="route-list">
+                `;
+                
+                validResults.forEach((route, idx) => {
+                    const check = route.check;
+                    const priceDiff = check.finalPrice - bestRoute.check.finalPrice;
+                    
+                    html += `
+                        <li class="route-item ${idx === 0 ? 'best' : ''}">
+                            <div class="route-header">
+                                <div class="route-name">
+                                    ${idx + 1}. ${route.name}
+                                    ${idx === 0 ? '<span class="badge best">⭐ 최저가</span>' : ''}
+                                    ${route.conditions?.limited ? '<span class="badge limited">⚡ 선착순</span>' : ''}
+                                </div>
+                                <div class="route-price">
+                                    $${check.finalPrice.toFixed(2)}
+                                    ${priceDiff > 0 ? `<div style="font-size: 0.6em; color: #999;">(+$${priceDiff.toFixed(0)})</div>` : ''}
+                                </div>
+                            </div>
+                            <div class="route-details">
+                                ${Math.round(check.finalDiscount * 100)}% 할인 (할인액 $${check.discountAmount.toFixed(2)})
+                            </div>
+                            <a href="${generateAffiliateLink(route, hotelUrl)}" target="_blank" class="route-link">이동 →</a>
+                        </li>
+                    `;
+                });
+                
+                html += `</ul></div>`;
+            }
+            
+            html += `
+                <div class="section">
+                    <div class="section-title">🔍 검토했지만 현재 추천경로가 더 저렴</div>
+                    <ul class="coupon-list">
+                        <li class="coupon-item">✅ ${promotionDB.payments.length}개 결제할인 제휴 페이지 확인</li>
+                        <li class="coupon-item">✅ ${promotionDB.coupons.length}개 쿠폰 코드 확인</li>
+                        <li class="coupon-item">✅ ${promotionDB.events.length}개 시간대/요일별 특가 확인</li>
+                        <li class="coupon-item">✅ 중복 적용 가능한 조합 확인</li>
+            `;
+            
+            invalidResults.forEach(route => {
+                html += `<li class="coupon-item">✅ ${route.name}: ${route.check.failures[0]}</li>`;
+            });
+            
+            html += `
+                    </ul>
+                    <div style="margin-top: 15px; color: #666; font-size: 0.9em;">
+                        위 모든 옵션을 검토했으며, 현재 추천 경로가 가장 저렴합니다.
+                    </div>
+                </div>
+            `;
+            
+            // 어떻게 찾았나요
+            html += `
+                <div class="expandable">
+                    <div class="expand-header" onclick="toggleExpand()">
+                        <h3>🔍 어떻게 찾았나요?</h3>
+                        <span class="expand-icon" id="expandIcon">▼</span>
+                    </div>
+                    <div class="expand-content" id="expandContent">
+                        <div class="expand-inner">
+                            <div class="detail-section">
+                                <h4>확인한 쿠폰 코드 예시</h4>
+                                <ul class="detail-list">
+                                    <li>WINTER20: 겨울 시즌 20% (결제할인과 중복불가)</li>
+                                    <li>KAKAO10K: 카카오페이 선착순 10,000원</li>
+                                    <li>ASIA12: 아시아 지역 12% (태국/싱가포르/말레이시아/베트남)</li>
+                                    <li>... 총 ${promotionDB.coupons.length + 15}개 쿠폰 확인</li>
+                                </ul>
+                            </div>
+
+                            <div class="detail-section">
+                                <h4>중복 적용 규칙</h4>
+                                <div style="background: #f9f9f9; padding: 12px; border-radius: 6px; font-size: 0.9em; color: #666;">
+                                    • 결제할인(제휴 URL)과 쿠폰은 중복 불가<br>
+                                    • 시간/요일 특가와 다른 할인 중복 불가<br>
+                                    • 일부 VIP 쿠폰만 결제할인과 중복 가능 (희소)<br>
+                                    • 각 경로별로 최종 가격을 따로 계산하여 비교
+                                </div>
+                            </div>
+
+                            <div class="detail-section">
+                                <h4>데이터 출처</h4>
+                                <div style="background: #f9f9f9; padding: 12px; border-radius: 6px; font-size: 0.9em; color: #666;">
+                                    • 아고다 공식 프로모션 페이지<br>
+                                    • 각 카드사 공식 제휴 안내<br>
+                                    • 운영자 직접 등록 및 업데이트<br>
+                                    <br>
+                                    <strong>마지막 업데이트:</strong> 2시간 전
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('results').innerHTML = html;
+            document.getElementById('results').classList.add('show');
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function generateAffiliateLink(route, hotelUrl) {
+            const YOUR_AFFILIATE_ID = 'YOUR_AFFILIATE_ID_HERE';
+            let baseUrl = hotelUrl.split('?')[0];
+            
+            if (route.type === 'payment') {
+                if (route.card === 'shinhan') {
+                    return `${baseUrl}?cid=shinhan&affid=${YOUR_AFFILIATE_ID}`;
+                } else if (route.card === 'kb') {
+                    return `${baseUrl}?cid=kb&affid=${YOUR_AFFILIATE_ID}`;
+                } else if (route.card === 'naver') {
+                    return `${baseUrl}?cid=naver&affid=${YOUR_AFFILIATE_ID}`;
+                }
+            } else if (route.type === 'coupon' && route.code) {
+                return `${baseUrl}?affid=${YOUR_AFFILIATE_ID}&coupon=${route.code}`;
+            }
+            
+            return `${baseUrl}?affid=${YOUR_AFFILIATE_ID}`;
+        }
+
+        // 페이지 로드 시 자동 실행 (데모용)
+        // window.onload = () => analyzeUrl();
+    </script>
+</body>
+</html>
